@@ -1,6 +1,6 @@
 'use strict'
 
-import Light from './basicSettings.js';
+import Light from './basicSettings';
 
 declare var Chart: any
 

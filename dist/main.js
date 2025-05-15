@@ -43,7 +43,9 @@ mainRoomsContainer === null || mainRoomsContainer === void 0 ? void 0 : mainRoom
 });
 mainRoomsContainer === null || mainRoomsContainer === void 0 ? void 0 : mainRoomsContainer.addEventListener('change', (e) => {
     const slider = e.target;
-    const value = parseFloat(slider === null || slider === void 0 ? void 0 : slider.value);
+
+    const value = +(slider === null || slider === void 0 ? void 0 : slider.value);
+
     lightController.handleLightIntensitySlider(slider, value);
 });
 // advance settings modal

@@ -22,120 +22,173 @@ class AdvanceSettings extends Light {
     }
     modalPopUp(element) {
         const selectedRoom = this.getSelectedComponentName(element);
+        if (!selectedRoom)
+            return;
         const componentData = this.getComponent(selectedRoom);
+        if (!componentData)
+            return;
         const parentElement = this.selector('.advanced_features_container');
+        if (!parentElement)
+            return;
         this.removeHidden(parentElement);
-        // display modal view
         this.renderHTML(__classPrivateFieldGet(this, _AdvanceSettings_instances, "m", _AdvanceSettings_markup).call(this, componentData), 'afterbegin', parentElement);
-        // graph display
         __classPrivateFieldGet(this, _AdvanceSettings_instances, "m", _AdvanceSettings_analyticsUsage).call(this, componentData['usage']);
     }
     displayCustomization(selectedElement) {
         const element = this.closestSelector(selectedElement, '.customization', '.customization-details');
-        this.toggleHidden(element);
+        if (element) {
+            this.toggleHidden(element);
+        }
     }
     closeModalPopUp() {
         const parentElement = this.selector('.advanced_features_container');
         const childElement = this.selector('.advanced_features');
-        // remove child element from the DOM
         childElement === null || childElement === void 0 ? void 0 : childElement.remove();
-        // hide parent element
-        this.addHidden(parentElement);
+        if (parentElement) {
+            this.addHidden(parentElement);
+        }
     }
     customizationCancelled(selectedElement, parentSelectorIdentifier) {
         const element = this.closestSelector(selectedElement, parentSelectorIdentifier, 'input');
-        element.value = '';
-        return;
+        if (element) {
+            element.value = '';
+        }
+        9;
     }
     customizeAutomaticOnPreset(selectedElement) {
-        const element = this.closestSelector(selectedElement, '.defaultOn', 'input');
-        const { value } = element;
-        // when value is falsy
-        if (!!value)
-            return;
-        const inputElement = element;
-        const component = this.getComponentData(inputElement, '.advanced_features', '.component_name');
-        component.autoOn = value;
-        inputElement.value = '';
-        // selecting display or markup view
-        const spanElement = this.selector('.auto_on > span:last-child');
-        this.updateMarkupValue(spanElement, component.autoOn);
-        // update room data with element
-        this.setComponentElement(component);
-        // handle light on automation
-        this.automateLight(component['autoOn'], component);
+        try {
+            const inputElement = this.closestSelector(selectedElement, '.defaultOn', 'input');
+            if (!inputElement) {
+                throw new Error('Input element not found');
+            }
+            const { value } = inputElement;
+            if (!value)
+                return;
+            const component = this.getComponentData(inputElement, '.advanced_features', '.component_name');
+            if (!component) {
+                throw new Error('Component data not found');
+            }
+            component.autoOn = value;
+            inputElement.value = '';
+            const parentElement = inputElement.closest('.advanced_features');
+            const spanElement = parentElement === null || parentElement === void 0 ? void 0 : parentElement.querySelector('.auto_on > span:last-child');
+            if (spanElement) {
+                this.updateMarkupValue(spanElement, component.autoOn);
+            }
+            this.setComponentElement(component);
+            this.automateLight(component['autoOn'], component);
+        }
+        catch (error) {
+            console.error('Error in customizeAutomaticOnPreset:', error);
+        }
     }
     customizeAutomaticOffPreset(selectedElement) {
-        const element = this.closestSelector(selectedElement, '.defaultOff', 'input');
-        const { value } = element;
-        // when value is falsy
-        if (!!value)
-            return;
-        const component = this.getComponentData(element, '.advanced_features', '.component_name');
-        component.autoOff = value;
-        element.value = '';
-        // selecting display or markup view
-        const spanElement = this.selector('.auto_off > span:last-child');
-        this.updateMarkupValue(spanElement, component.autoOff);
-        // update room data with element
-        this.setComponentElement(component);
-        // handle light on automation
-        this.automateLight(component['autoOff'], component);
+        try {
+            const inputElement = this.closestSelector(selectedElement, '.defaultOff', 'input');
+            if (!inputElement) {
+                throw new Error('Input element not found');
+            }
+            const { value } = inputElement;
+            if (!value)
+                return;
+            const component = this.getComponentData(inputElement, '.advanced_features', '.component_name');
+            ;
+            if (!component) {
+                throw new Error('Component data not found');
+            }
+            component.autoOff = value;
+            inputElement.value = '';
+            const parentElement = inputElement.closest('.advanced_features');
+            const spanElement = parentElement === null || parentElement === void 0 ? void 0 : parentElement.querySelector('.auto_off > span:last-child');
+            if (spanElement) {
+                this.updateMarkupValue(spanElement, component.autoOff);
+            }
+            this.setComponentElement(component);
+            this.automateLight(component['autoOff'], component);
+        }
+        catch (error) {
+            console.error('Error in customizeAutomaticOffPreset:', error);
+        }
     }
-    getSelectedComponent(componentName) {
-        if (!componentName)
-            return this.componentsData;
-        const component = this.componentsData[componentName.toLowerCase()];
+    getComponentData(element, ancestorIdentifier, childElement) {
+        const parentElement = element.closest(ancestorIdentifier);
+        if (!parentElement) {
+            console.error(`Parent element with class "${ancestorIdentifier}" not found`);
+            throw new Error(`Parent element with class "${ancestorIdentifier}" not found`);
+        }
+        const nameElement = parentElement.querySelector(childElement);
+        if (!nameElement || !nameElement.textContent) {
+            console.error(`Child element "${childElement}" not found or has no text content`);
+            throw new Error(`Child element "${childElement}" not found or has no text content`);
+        }
+        const componentName = nameElement.textContent.toLowerCase().trim();
+        const component = this.getSelectedComponent(componentName);
+        if (!component) {
+            console.error(`Component "${componentName}" not found`);
+            throw new Error(`Component "${componentName}" not found`);
+        }
         return component;
     }
-    getSelectedSettings(componentName) {
-        return __classPrivateFieldGet(this, _AdvanceSettings_instances, "m", _AdvanceSettings_markup).call(this, this.getSelectedComponent(componentName));
+    getSelectedComponent(componentName) {
+        if (!componentName) {
+            console.error('No component name provided');
+            return null;
+        }
+        return this.componentsData[componentName.toLowerCase()];
     }
-    // setComponentElement (component:any) {
-    //     const componentName = component.name.toLowerCase();
-    //     this.componentsData[componentName] = component;
-    // }
+    getSelectedSettings(componentName) {
+        const component = this.getSelectedComponent(componentName);
+        return component ? __classPrivateFieldGet(this, _AdvanceSettings_instances, "m", _AdvanceSettings_markup).call(this, component) : '';
+    }
+    setComponentElement(component) {
+        if (!component || !component.name) {
+            console.error('Invalid component data');
+            return;
+        }
+        const componentName = component.name.toLowerCase();
+        this.componentsData[componentName] = component;
+    }
     setNewData(component, key, data) {
-        const SelectedComponent = this.componentsData[component.toLowerCase()];
-        return SelectedComponent[key] = data;
+        const selectedComponent = this.componentsData[component.toLowerCase()];
+        if (selectedComponent) {
+            selectedComponent[key] = data;
+        }
+        return selectedComponent;
     }
     capFirstLetter(word) {
         if (!word)
             return word;
-        return word[0].toUpperCase();
-    }
-    getObjectDetails() {
-        return this;
+        return word[0].toUpperCase() + word.slice(1).toLowerCase();
     }
     formatTime(time) {
+        if (!time)
+            return null;
         const [hour, min] = time.split(':');
+        if (!hour || !min)
+            return null;
         const dailyAlarmTime = new Date();
-        dailyAlarmTime.setHours(hour);
-        dailyAlarmTime.setMinutes(min);
+        dailyAlarmTime.setHours(parseInt(hour));
+        dailyAlarmTime.setMinutes(parseInt(min));
         dailyAlarmTime.setSeconds(0);
         return dailyAlarmTime;
     }
-    ;
     timeDifference(selectedTime) {
         const now = new Date();
-        const setTime = this.formatTime(selectedTime) - Number(now);
-        console.log(setTime, now);
-        return setTime;
+        const setTime = this.formatTime(selectedTime);
+        return setTime ? setTime.getTime() - now.getTime() : 0;
     }
     timer(time, message, component) {
         return __awaiter(this, void 0, void 0, function* () {
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve) => {
                 const checkAndTriggerAlarm = () => {
                     const now = new Date();
                     if (now.getHours() === time.getHours() &&
                         now.getMinutes() === time.getMinutes() &&
                         now.getSeconds() === time.getSeconds()) {
                         resolve(this.toggleLightSwitch(component['element']));
-                        // stop timer
                         clearInterval(intervalId);
                     }
                 };
-                // Check every second
                 const intervalId = setInterval(checkAndTriggerAlarm, 1000);
             });
         });
@@ -143,6 +196,8 @@ class AdvanceSettings extends Light {
     automateLight(time, component) {
         return __awaiter(this, void 0, void 0, function* () {
             const formattedTime = this.formatTime(time);
+            if (!formattedTime)
+                return;
             return yield this.timer(formattedTime, "true", component);
         });
     }
@@ -158,7 +213,6 @@ _AdvanceSettings_instances = new WeakSet(), _AdvanceSettings_markup = function _
                     <p class="number_of_lights">${numOfLights}</p>
                 </div>
                 <div>
-
                     <p class="auto_on">
                         <span>Automatic turn on:</span>
                         <span>${autoOn}</span>
@@ -195,7 +249,6 @@ _AdvanceSettings_instances = new WeakSet(), _AdvanceSettings_markup = function _
                                 <button class="defaultOff-cancel">Cancel</button>
                             </div>
                         </div>
-
                     </div>
                 </section>
                 <section class="summary">
@@ -215,6 +268,8 @@ _AdvanceSettings_instances = new WeakSet(), _AdvanceSettings_markup = function _
         `;
 }, _AdvanceSettings_analyticsUsage = function _AdvanceSettings_analyticsUsage(data) {
     const ctx = this.selector('#myChart');
+    if (!ctx)
+        return;
     new Chart(ctx, {
         type: 'line',
         data: {

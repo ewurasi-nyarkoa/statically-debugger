@@ -1,6 +1,5 @@
 'use strict';
 import General from "./general.js";
-let debounceTimeout;
 class Light extends General {
     constructor() {
         super();
@@ -78,7 +77,7 @@ class Light extends General {
             console.error("Component data is undefined2.");
             return;
         }
-        if (typeof intensity !== 'number' || Number.isNaN(intensity))
+        if (typeof intensity !== 'number' || isNaN(intensity))
             return;
         componentData.lightIntensity = intensity;
         const lightSwitch = this.closestSelector(element, '.rooms', '.light-switch');
@@ -88,43 +87,23 @@ class Light extends General {
             return;
         }
         else {
-            componentData.isLightOn = false;
+            componentData.isLightOn = true;
             this.sliderLight(componentData.isLightOn, lightSwitch);
         }
     }
     sliderLight(isLightOn, lightButtonElement) {
         const { componentData: component, childElement, background } = this.lightComponentSelectors(lightButtonElement);
-        const slider = this.closestSelector(lightButtonElement, '.rooms', '#light_intensity');
         if (!component) {
             return;
         }
         if (isLightOn) {
             this.lightSwitchOn(childElement);
-            component.lightIntensity = component.lightIntensity || 5;
             const lightIntensity = component.lightIntensity / 10;
             this.handleLightIntensity(background, lightIntensity);
-            if (slider)
-                slider.value = component.lightIntensity.toString();
         }
         else {
             this.lightSwitchOff(childElement);
             this.handleLightIntensity(background, 0);
-            if (slider)
-                slider.value = component.lightIntensity.toString();
-        }
-        // Add event listener to slider to allow manual adjustment of intensity
-        if (slider && !slider.dataset.listenerAdded) {
-            slider.addEventListener('input', (event) => {
-                clearTimeout(debounceTimeout);
-                debounceTimeout = setTimeout(() => {
-                    const newIntensity = parseInt(event.target.value, 10);
-                    if (!isNaN(newIntensity)) {
-                        component.lightIntensity = newIntensity;
-                        const lightIntensity = newIntensity / 10;
-                        this.handleLightIntensity(background, lightIntensity);
-                    }
-                }, 50); // Small delay to smooth out rapid changes
-            });
         }
     }
 }

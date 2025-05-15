@@ -52,8 +52,8 @@ mainRoomsContainer?.addEventListener('click', (e) => {
 });
 
 mainRoomsContainer?.addEventListener('change', (e) => {
-    const slider = e.target as EventTarget | null;
-    const value = parseFloat((slider as HTMLInputElement)?.value);
+    const slider = e.target as HTMLInputElement;
+    const value = +slider?.value;
     lightController.handleLightIntensitySlider(slider as HTMLElement, value);
     
 })

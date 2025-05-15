@@ -1,7 +1,7 @@
 'use strict'
 
 import General from "./general.js";
-let debounceTimeout: NodeJS.Timeout;
+
 
 class Light extends General {
     constructor() {
@@ -93,7 +93,7 @@ class Light extends General {
             return;
         }
 
-        if (typeof intensity !== 'number' || Number.isNaN(intensity)) return;
+        if (typeof intensity !== 'number' || isNaN(intensity)) return;
 
         componentData.lightIntensity = intensity; 
         
@@ -105,15 +105,14 @@ class Light extends General {
             this.sliderLight(componentData.isLightOn, lightSwitch as HTMLElement);
             return;
         } else {
-            componentData.isLightOn = false;
+            componentData.isLightOn = true;
             this.sliderLight(componentData.isLightOn, lightSwitch as HTMLElement);
         }
     }
 
     sliderLight(isLightOn: boolean, lightButtonElement: HTMLElement) {
         const { componentData: component, childElement, background } = this.lightComponentSelectors(lightButtonElement);
-        const slider = this.closestSelector(lightButtonElement, '.rooms', '#light_intensity') as HTMLInputElement;
-
+    
         if (!component) {
            
             return;
@@ -121,30 +120,17 @@ class Light extends General {
 
         if (isLightOn) {
             this.lightSwitchOn(childElement as HTMLElement);
-            component.lightIntensity = component.lightIntensity || 5; 
+           
             const lightIntensity = component.lightIntensity / 10;
             this.handleLightIntensity(background as HTMLElement, lightIntensity);
-            if (slider) slider.value = component.lightIntensity.toString(); 
+           
         } else {
             this.lightSwitchOff(childElement as HTMLElement);
             this.handleLightIntensity(background as HTMLElement, 0);
-            if (slider) slider.value = component.lightIntensity.toString(); 
+          
         }
 
-        // Add event listener to slider to allow manual adjustment of intensity
-        if (slider && !slider.dataset.listenerAdded) {
-            slider.addEventListener('input', (event) => {
-                clearTimeout(debounceTimeout);
-                debounceTimeout = setTimeout(() => {
-                  const newIntensity = parseInt((event.target as HTMLInputElement).value, 10);
-                  if (!isNaN(newIntensity)) {
-                    component.lightIntensity = newIntensity;
-                    const lightIntensity = newIntensity / 10;
-                    this.handleLightIntensity(background as HTMLElement, lightIntensity);
-                  }
-                }, 50); // Small delay to smooth out rapid changes
-              });   
-        }
+      
 
      
     }
